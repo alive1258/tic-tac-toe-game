@@ -69,22 +69,50 @@ export default function Game() {
   // State to manage game history and the current player (X or O)
   const [history, setHistory] = useState([Array(9).fill(null)])
   const [xIsNext, setXIsNext] = useState(true)
+  const [currentMove, setCurrentMove] = useState(0)
 
   // Get the current squares from the history
-  const currentSquares = history[history.length - 1]
+  const currentSquares = history[currentMove]
 
   // Function to handle a player's move
   function handlePlay(nextSquares) {
     setXIsNext(!xIsNext)
-    setHistory([...history, nextSquares])
+    const nextHistory = [...history.slice(0, currentMove + 1), nextSquares]
+    setHistory(nextHistory)
+    setCurrentMove(nextHistory.length - 1)
   }
+
+  function jumpTo(move) {
+    setCurrentMove(move)
+    setXIsNext(move % 2 === 0)
+  }
+  // Create a list of moves based on the game history
+  const moves = history?.map((squares, move) => {
+    let description
+
+    // Determine the description for each move
+    if (move > 0) {
+      description = `Go to Move # ${move}`
+    } else {
+      description = `Go to start the game`
+    }
+
+    // Return a list item for each move with a button containing the description
+    return (
+      <li key={move} className="bg-gray-500 text-white mb-1 p-1">
+        {' '}
+        {/* Ensure to provide a unique key for each list item */}
+        <button onClick={() => jumpTo(move)}>{description}</button>
+      </li>
+    )
+  })
   return (
-    <div>
-      <div>
+    <div className="flex justify-center p-4">
+      <div className="mr-16">
         <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
       </div>
       <div>
-        <ol>{}</ol>
+        <ol className="border border-gray-400 p-4">{moves}</ol>
       </div>
     </div>
   )
